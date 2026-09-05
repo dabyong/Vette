@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vette — Vette before you vote.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#0A0E1A;
+    --navy-800:#10162B;
+    --navy-700:#1B2440;
+    --navy-600:#293659;
+    --line:#232D4B;
+    --gold:#C9A15A;
+    --gold-soft:#E9D6AC;
+    --canvas-bg:#E7E9EE;
+    --paper:#FFFFFF;
+    --ink:#0F172A;
+    --ink-soft:#5B677A;
+    --ink-faint:#94A0B4;
+    --green:#1C8A4C;
+    --green-soft:#E4F5EA;
+    --red:#C63A3A;
+    --red-soft:#FBE9E9;
+    --display: 'Fraunces', serif;
+    --body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--body);
+    background:var(--navy-900);
+    color:var(--ink);
+    overflow:hidden;
+  }
+  .app-shell{
+    min-height:100vh;
+    width:100%;
+  }
+
+  /* ============ STANDALONE APP FRAME ============ */
+  body{ overflow-y:auto; overflow-x:hidden; background:var(--canvas-bg); }
+  .app-frame{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--paper);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    box-shadow:0 0 70px rgba(15,23,42,0.10);
+  }
+  @media (max-width:480px){
+    .app-frame{ box-shadow:none; }
+  }
+
+  .screen-body{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    position:relative;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .screen-fade{
+    animation:fadeIn .32s ease;
+  }
+  @keyframes fadeIn{
+    from{ opacity:0; transform:translateY(6px);}
+    to{ opacity:1; transform:translateY(0);}
+  }
+
+  /* ============ TAB BAR (in-app) ============ */
+  .tabbar{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+    padding:10px 6px calc(6px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,0.94);
+    backdrop-filter:blur(10px);
+    border-top:1px solid #E4E7EE;
+    position:sticky;
+    bottom:0;
+    z-index:30;
+  }
+  .tab-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    color:#9AA3B5;
+    font-family:var(--body);
+    font-size:10px;
+    font-weight:600;
+    padding:4px 10px;
+  }
+  .tab-btn svg{ width:21px; height:21px; }
+  .tab-btn.active{ color:var(--navy-900); }
+  .tab-btn.active svg *{ stroke:var(--navy-900); }
+
+  /* ============ SHARED APP UI ============ */
+  .app-header{
+    padding:6px 22px 14px;
+  }
+  .app-header .word{
+    font-family:var(--display);
+    font-size:25px;
+    font-weight:600;
+    color:var(--navy-900);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .app-header .tag{
+    font-size:11.5px;
+    color:var(--ink-faint);
+    margin-top:1px;
+  }
+  .gear-btn{
+    width:30px; height:30px;
+    border-radius:50%;
+    background:#F1F3F7;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    border:1px solid #E4E7EE;
+  }
+
+  .section-label{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    padding:0 22px;
+    margin:18px 0 8px;
+  }
+
+  .primary-btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:var(--navy-900);
+    color:#fff;
+    border:none;
+    border-radius:13px;
+    padding:15px;
+    font-family:var(--body);
+    font-weight:600;
+    font-size:15px;
+    cursor:pointer;
+    letter-spacing:-0.01em;
+  }
+  .primary-btn:active{ opacity:0.85; }
+  .ghost-btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:transparent;
+    color:var(--navy-900);
+    border:1.4px solid #D7DBE4;
+    border-radius:13px;
+    padding:14px;
+    font-family:var(--body);
+    font-weight:600;
+    font-size:14.5px;
+    cursor:pointer;
+  }
+  .gold-btn{
+    background:var(--gold);
+    color:var(--navy-900);
+  }
+
+  .flag-dot{
+    display:inline-block;
+    width:7px; height:7px;
+    border-radius:50%;
+    margin-right:7px;
+    flex-shrink:0;
+  }
+  .flag-dot.green{ background:var(--green); }
+  .flag-dot.red{ background:var(--red); }
+
+  /* candidate card */
+  .cand-card{
+    margin:0 22px 14px;
+    background:#fff;
+    border:1px solid #E7E9EE;
+    border-radius:16px;
+    padding:16px 17px;
+    box-shadow:0 1px 2px rgba(15,23,42,0.03);
+  }
+  .cand-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .cand-name{
+    font-weight:700;
+    font-size:15px;
+    color:var(--navy-900);
+  }
+  .cand-radio{
+    width:19px; height:19px;
+    border-radius:50%;
+    border:1.6px solid #C7CCD6;
+  }
+  .cand-radio.checked{
+    border-color:var(--navy-900);
+    background:radial-gradient(circle, var(--navy-900) 42%, transparent 44%);
+  }
+  .stat-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:12.6px;
+    padding:5px 0;
+    color:var(--ink-soft);
+    border-bottom:1px dashed #EEF0F4;
+  }
+  .stat-row:last-child{ border-bottom:none; }
+  .stat-row .label{ display:flex; align-items:center; color:#7B8598; }
+  .stat-row .val{ font-weight:600; color:var(--navy-900); font-family:var(--mono); font-size:11.6px;}
+  .more-stats{ display:none; }
+  .cand-card.open .more-stats{ display:block; }
+  .expand-toggle{
+    width:100%;
+    background:none;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:9px 0 1px;
+    margin-top:2px;
+    border-top:1px solid #F1F3F7;
+    font-family:var(--body);
+    font-size:11px;
+    font-weight:600;
+    color:var(--ink-faint);
+    cursor:pointer;
+  }
+  .expand-toggle svg{ transition:transform .18s ease; }
+  .cand-card.open .expand-toggle svg{ transform:rotate(180deg); }
+  .subsection-note{
+    padding:0 22px 10px;
+    font-size:11.6px;
+    color:var(--ink-faint);
+    line-height:1.5;
+  }
+
+  /* chips */
+  .chip-scroll{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:0 22px 4px;
+    scrollbar-width:none;
+  }
+  .chip-scroll::-webkit-scrollbar{display:none;}
+  .chip{
+    flex-shrink:0;
+    padding:9px 15px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-weight:600;
+    white-space:nowrap;
+    border:1.4px solid #DEE2E9;
+    color:#5B677A;
+    background:#fff;
+    cursor:pointer;
+  }
+  .chip.on{
+    background:var(--navy-900);
+    color:#fff;
+    border-color:var(--navy-900);
+  }
+
+  /* callouts */
+  .callout{
+    margin:0 22px 12px;
+    border-radius:14px;
+    padding:13px 15px;
+    font-size:12.6px;
+    line-height:1.5;
+    display:flex;
+    gap:9px;
+  }
+  .callout.good{ background:var(--green-soft); color:#155c37; }
+  .callout.bad{ background:var(--red-soft); color:#8f2c2c; }
+  .callout b{ font-weight:700; }
+  .callout .dot{
+    width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0;
+  }
+  .callout.good .dot{ background:var(--green); }
+  .callout.bad .dot{ background:var(--red); }
+
+  /* news card */
+  .news-card{
+    margin:0 22px 16px;
+    display:flex;
+    gap:12px;
+  }
+  .news-thumb{
+    width:78px; height:78px;
+    border-radius:12px;
+    flex-shrink:0;
+    background:linear-gradient(135deg, #1B2440, #3B4B79);
+  }
+  .news-source{
+    font-family:var(--mono);
+    font-size:9.6px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin-bottom:3px;
+  }
+  .news-headline{
+    font-weight:700;
+    font-size:13.4px;
+    color:var(--navy-900);
+    line-height:1.28;
+    margin-bottom:4px;
+  }
+  .news-snippet{
+    font-size:11.6px;
+    color:var(--ink-faint);
+    line-height:1.4;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+
+  /* score ring */
+  .accept-suggestion{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    width:100%;
+    margin-top:12px;
+    background:var(--green);
+    color:#fff;
+    border:none;
+    border-radius:11px;
+    padding:11px;
+    font-family:var(--body);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .accept-suggestion.applied{
+    background:#EAF5EE;
+    color:var(--green);
+    cursor:default;
+  }
+  .ring-wrap{ display:flex; justify-content:center; padding:14px 0 6px; }
+  .score-num{
+    font-family:var(--display);
+    font-size:15px;
+    font-weight:600;
+  }
+
+  /* ballot — framed sheet, matches Figma reference */
+  .ballot-frame{
+    margin:16px 20px 4px;
+    background:#111318;
+    border-radius:18px;
+    padding:9px;
+    box-shadow:0 10px 24px -12px rgba(15,23,42,0.35);
+  }
+  .ballot-sheet{
+    background:#fff;
+    border-radius:12px;
+    padding:16px 0 14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .ballot-watermark2{
+    position:absolute;
+    left:50%; top:52%;
+    transform:translate(-50%,-50%);
+    font-family:var(--display);
+    font-size:150px;
+    font-weight:600;
+    color:#EEF0F4;
+    line-height:1;
+    z-index:0;
+    pointer-events:none;
+  }
+  .ballot-top{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:0 16px 12px;
+    position:relative; z-index:1;
+  }
+  .ballot-logo{
+    width:30px; height:30px;
+    border-radius:8px;
+    background:var(--navy-900);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--display);
+    font-weight:700;
+    font-size:15px;
+    flex-shrink:0;
+  }
+  .ballot-titles{ flex:1; }
+  .ballot-title2{ font-weight:800; font-size:13.5px; letter-spacing:0.02em; color:var(--navy-900);}
+  .ballot-subtitle2{ font-family:var(--display); font-style:italic; font-size:10.5px; color:var(--ink-faint); margin-top:1px;}
+  .ballot-meta2{ text-align:right; font-family:var(--mono); font-size:8px; color:var(--ink-faint); line-height:1.55; flex-shrink:0;}
+  .ballot-meta2 b{ color:var(--navy-900); }
+  .ballot-bar{
+    background:#9AA3B0;
+    color:#fff;
+    text-align:center;
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:6px 0;
+    position:relative; z-index:1;
+  }
+  .ballot-bar.empty{ padding:9px 0; }
+  .ballot-list{
+    padding:7px 16px;
+    position:relative; z-index:1;
+    background:#fff;
+  }
+  .ballot-list.empty-space{ padding:15px 16px; }
+  .ballot-row2{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:4px 0;
+    font-size:11.8px;
+    color:var(--navy-900);
+    font-weight:500;
+  }
+  .ballot-circle{
+    width:13px; height:13px;
+    border-radius:50%;
+    border:1.5px solid #C7CCD6;
+    background:#D9DCE2;
+    flex-shrink:0;
+  }
+  .ballot-circle.filled{ background:var(--navy-900); border-color:var(--navy-900); }
+  .ballot-two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    column-gap:14px;
+  }
+  .ballot-disclaimer2{
+    margin:12px 16px 0;
+    font-size:8.6px;
+    line-height:1.55;
+    color:var(--ink-soft);
+    position:relative; z-index:1;
+    padding-top:10px;
+  }
+  .ballot-disclaimer2 b{ color:var(--navy-900); }
+
+  /* checkbox row for toggles */
+  .check-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:0 22px 14px;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .box{
+    width:18px; height:18px;
+    border-radius:5px;
+    border:1.6px solid #C7CCD6;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .box svg{ display:none; }
+  .box.on{ background:var(--navy-900); border-color:var(--navy-900); }
+  .box.on svg{ display:block; }
+
+  .cand-check{
+    width:19px; height:19px;
+    border-radius:6px;
+    border:1.6px solid #C7CCD6;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .cand-check.on{ background:var(--navy-900); border-color:var(--navy-900); }
+  .cand-check.disabled{ opacity:0.35; cursor:not-allowed; }
+
+  .btn-row{
+    display:flex;
+    gap:10px;
+    padding:14px 22px 20px;
+  }
+
+  /* terms text block */
+  .terms-box{
+    margin:6px 22px 16px;
+    background:#F8F9FB;
+    border:1px solid #E7E9EE;
+    border-radius:16px;
+    padding:18px;
+    font-size:12.4px;
+    line-height:1.65;
+    color:var(--ink-soft);
+    max-height:340px;
+    overflow-y:auto;
+  }
+  .terms-box h4{
+    font-family:var(--display);
+    font-size:13.5px;
+    color:var(--navy-900);
+    margin:14px 0 4px;
+  }
+  .terms-box h4:first-child{ margin-top:0; }
+
+  /* login card */
+  .login-card{
+    margin:22px 22px 0;
+    background:#fff;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 20px 40px -18px rgba(15,23,42,0.25);
+  }
+  .field{
+    width:100%;
+    border:1.4px solid #DEE2E9;
+    border-radius:11px;
+    padding:13px 14px;
+    font-size:13.5px;
+    font-family:var(--body);
+    margin-bottom:10px;
+    color:var(--navy-900);
+    background:#FBFBFC;
+  }
+  .field::placeholder{ color:#A6ACBA; }
+  .link-row{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-faint);
+    margin-top:12px;
+  }
+  .link-row b{ color:var(--navy-900); cursor:pointer; text-decoration:underline; }
+
+  .hero-navy{
+    background:linear-gradient(180deg, var(--navy-900) 0%, #141B31 100%);
+    padding:34px 0 6px;
+    text-align:center;
+    color:#fff;
+  }
+  .hero-mark{ width:52px; height:52px; margin:0 auto 14px; }
+  .hero-word{ font-family:var(--display); font-size:34px; font-weight:600; letter-spacing:-0.01em;}
+  .hero-tag{ font-size:12px; color:var(--gold-soft); margin-top:4px; font-family:var(--mono); letter-spacing:0.04em;}
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="app-frame">
+    <div class="screen-body" id="screenBody"></div>
+    <div class="tabbar" id="tabbar"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- icon helpers ---------- */
+const ICONS = {
+  home: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 5l8 6.5" stroke="#9AA3B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" stroke="#9AA3B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.2" stroke="#9AA3B5" stroke-width="1.8"/><path d="M12 6.5V12l3.6 2.1" stroke="#9AA3B5" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  news: `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="1.6" stroke="#9AA3B5" stroke-width="1.8"/><path d="M7.5 9h4M7.5 12h9M7.5 15h9" stroke="#9AA3B5" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  ballot: `<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#9AA3B5" stroke-width="1.8" stroke-dasharray="2.4 2.4"/><path d="M9 12.5 11 14.5 15.5 9.5" stroke="#9AA3B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  gear: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#5B677A" stroke-width="1.8"/><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.36 5.64l-1.7 1.7M7.34 16.66l-1.7 1.7M18.36 18.36l-1.7-1.7M7.34 7.34l-1.7-1.7" stroke="#5B677A" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  download: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 18.5v1a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  vmark: `<svg viewBox="0 0 40 40" fill="none"><path d="M6 8 L20 32 L34 8" stroke="#fff" stroke-width="3.6" stroke-linecap="square"/><path d="M14 20 L19 27" stroke="#C9A15A" stroke-width="3.6" stroke-linecap="square"/></svg>`
+};
+
+function tabBar(active){
+  const tabs = [
+    {id:'dashboard', label:'Vet', icon:'home'},
+    {id:'match', label:'Match', icon:'chart'},
+    {id:'news', label:'News', icon:'news'},
+    {id:'ballot', label:'Ballot', icon:'ballot'}
+  ];
+  return `<div class="tabbar">${tabs.map(t=>`
+    <button class="tab-btn ${active===t.id?'active':''}" data-goto="${t.id}">
+      ${ICONS[t.icon]}<span>${t.label}</span>
+    </button>`).join('')}</div>`;
+}
+
+/* ---------- candidate card builder (expandable, radio or checkbox) ---------- */
+function candCard({id, name, group, type='radio', checked=false, basics=[], more=[]}){
+  const indicator = type === 'radio'
+    ? `<div class="cand-radio ${checked?'checked':''}" data-group="${group}" data-id="${id}"></div>`
+    : `<div class="cand-check ${checked?'on':''}" data-group="${group}" data-id="${id}"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+  const row = s => `<div class="stat-row"><span class="label"><span class="flag-dot ${s.flag}"></span>${s.label}</span><span class="val">${s.val}</span></div>`;
+  return `
+    <div class="cand-card screen-fade">
+      <div class="cand-head">
+        <span class="cand-name">${name}</span>
+        ${indicator}
+      </div>
+      ${basics.map(row).join('')}
+      <div class="more-stats">${more.map(row).join('')}</div>
+      <button class="expand-toggle" type="button">
+        <span class="expand-label">View more</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 3.5 5 7l3.5-3.5" stroke="#94A0B4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>`;
+}
+
+/* ---------- candidate data model + live selection state ---------- */
+function makeSenator(id, score){
+  const strong = score >= 70;
+  const ok = score >= 55;
+  return {
+    id, name:`Candidate ${id}`, score,
+    basics:[
+      {flag: strong ? 'green':'red', label:'Education', val: strong ? 'Post-Grad Degree':"Bachelor's Degree"},
+      {flag: ok ? 'green':'red', label:'Public Service', val:`${Math.max(2, Math.round(score/10))} Yrs Active`},
+      {flag: score>=75 ? 'green':'red', label:'Session Attendance', val:`${Math.min(98, Math.max(52, score+4))}.0%`},
+      {flag: score>=65 ? 'green':'red', label:'Political Dynasty', val: score>=65 ? 'No':'Yes'}
+    ],
+    more:[
+      {flag: score>=60 ? 'green':'red', label:'Court Records', val: score>=60 ? 'Clean':'1 Pending'},
+      {flag: score>=70 ? 'green':'red', label:'Bills Authored', val:`${Math.max(1, Math.round(score/6))}`}
+    ]
+  };
+}
+
+const CANDIDATES = {
+  pres: [
+    { id:'A', name:'Candidate A', score:72,
+      basics:[
+        {flag:'green', label:'Education', val:'Post-Grad / Law'},
+        {flag:'green', label:'Session Attendance', val:'94.5%'},
+        {flag:'green', label:'Bills Passed/Authored', val:'5 / 24'},
+        {flag:'green', label:'Political Dynasty', val:'No'}
+      ],
+      more:[
+        {flag:'green', label:'Public Service', val:'12 Yrs Active'},
+        {flag:'green', label:'Court Records', val:'0 Final / 1 Pending'},
+        {flag:'green', label:'COA Audit Rating', val:'Unmodified'},
+        {flag:'green', label:'SALN Net Worth', val:'₱12.4M (+12%)'}
+      ]
+    },
+    { id:'B', name:'Candidate B', score:45,
+      basics:[
+        {flag:'green', label:'Education', val:'Post-Grad / Law'},
+        {flag:'red', label:'Court Records', val:'1 Pending'},
+        {flag:'green', label:'COA Audit Rating', val:'Unmodified'},
+        {flag:'red', label:'SALN Growth', val:'+31% / term'}
+      ],
+      more:[
+        {flag:'green', label:'Public Service', val:'9 Yrs Active'},
+        {flag:'green', label:'Session Attendance', val:'88.0%'},
+        {flag:'red', label:'Political Dynasty', val:'Yes'},
+        {flag:'red', label:'Bills Passed/Authored', val:'2 / 14'}
+      ]
+    },
+    { id:'C', name:'Candidate C', score:91,
+      basics:[
+        {flag:'green', label:'Education', val:'Post-Grad / Law'},
+        {flag:'green', label:'Session Attendance', val:'98.0%'},
+        {flag:'green', label:'Bills Passed/Authored', val:'12 / 30'},
+        {flag:'green', label:'Political Dynasty', val:'No'}
+      ],
+      more:[
+        {flag:'green', label:'Public Service', val:'15 Yrs Active'},
+        {flag:'green', label:'Court Records', val:'Clean'},
+        {flag:'green', label:'COA Audit Rating', val:'Unmodified'},
+        {flag:'green', label:'SALN Net Worth', val:'₱9.8M (+6%)'}
+      ]
+    }
+  ],
+  vp: [
+    { id:'A', name:'Candidate A', score:88,
+      basics:[
+        {flag:'green', label:'Education', val:"Bachelor's Degree"},
+        {flag:'green', label:'Public Service', val:'8 Yrs Active'},
+        {flag:'green', label:'Session Attendance', val:'91.0%'},
+        {flag:'green', label:'Political Dynasty', val:'No'}
+      ],
+      more:[
+        {flag:'green', label:'Court Records', val:'0 Final / 0 Pending'},
+        {flag:'green', label:'COA Audit Rating', val:'Unmodified'},
+        {flag:'green', label:'SALN Net Worth', val:'₱6.1M (+8%)'}
+      ]
+    },
+    { id:'B', name:'Candidate B', score:40,
+      basics:[
+        {flag:'green', label:'Education', val:'Post-Grad Degree'},
+        {flag:'red', label:'Court Records', val:'2 Pending'},
+        {flag:'red', label:'Session Attendance', val:'76.0%'},
+        {flag:'red', label:'Political Dynasty', val:'Yes'}
+      ],
+      more:[
+        {flag:'green', label:'Public Service', val:'5 Yrs Active'},
+        {flag:'red', label:'COA Audit Rating', val:'Modified'},
+        {flag:'red', label:'SALN Growth', val:'+54% / term'}
+      ]
+    }
+  ],
+  sen: [
+    makeSenator('G', 90), makeSenator('H', 85), makeSenator('I', 55), makeSenator('J', 48),
+    makeSenator('K', 82), makeSenator('L', 76), makeSenator('M', 60), makeSenator('N', 90),
+    makeSenator('O', 40), makeSenator('P', 70), makeSenator('Q', 65), makeSenator('R', 58),
+    makeSenator('S', 80), makeSenator('T', 52)
+  ]
+};
+
+const state = {
+  pres: 'A',
+  vp: 'A',
+  sen: new Set(['G', 'H'])
+};
+
+function computeMatchScore(){
+  const presCand = CANDIDATES.pres.find(c => c.id === state.pres);
+  const vpCand = CANDIDATES.vp.find(c => c.id === state.vp);
+  const selectedSens = CANDIDATES.sen.filter(c => state.sen.has(c.id));
+  const senAvg = selectedSens.length
+    ? selectedSens.reduce((sum, c) => sum + c.score, 0) / selectedSens.length
+    : 0;
+  const overall = Math.round((presCand?.score ?? 0) * 0.4 + (vpCand?.score ?? 0) * 0.25 + senAvg * 0.35);
+  return { overall, presCand, vpCand, senAvg: Math.round(senAvg), selectedSens };
+}
+
+/* ---------- screen templates ---------- */
+const SCREENS = {
+
+  terms: {
+    label:'Terms & Conditions',
+    dark:false,
+    body:`
+      <div class="hero-navy screen-fade" style="padding:26px 0 16px;">
+        <div class="hero-mark" style="width:38px; height:38px; margin-bottom:8px;">${ICONS.vmark}</div>
+        <div class="hero-word" style="font-size:22px;">Vette</div>
+        <div class="hero-tag" style="font-size:10px;">VETTE BEFORE YOU VOTE.</div>
+      </div>
+      <div class="app-header screen-fade">
+        <div class="word">Before we begin<span></span></div>
+        <div class="tag">One quick read, then you're in.</div>
+      </div>
+      <div class="terms-box screen-fade">
+        <h4>Purpose</h4>
+        <p>Vette organizes publicly available candidate records — education, service history, attendance, legislative output — so you can compare candidates against what matters to you.</p>
+        <h4>Data Sources</h4>
+        <p>Figures are compiled from COMELEC filings, the Commission on Audit, court records, and SALN disclosures. Vette does not alter or interpret raw figures beyond plain formatting.</p>
+        <h4>Non-Partisanship</h4>
+        <p>Vette does not endorse, rank, or recommend any candidate or party. Match scores reflect your stated priorities only, not an editorial opinion.</p>
+        <h4>Disclaimer</h4>
+        <p>This app is an educational tool. It is not an official ballot and cannot be used to cast a vote.</p>
+      </div>
+      <div class="check-row screen-fade">
+        <div class="box on"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span>I understand Vette is an educational tool, not an official ballot or endorsement.</span>
+      </div>
+      <div class="btn-row screen-fade" style="padding-top:0;">
+        <button class="primary-btn" data-goto="dashboard">Agree &amp; Continue</button>
+      </div>
+    `
+  },
+
+  dashboard: {
+    label:'Candidate Vetting Dashboard',
+    dark:false,
+    body: () => `
+      <div class="app-header screen-fade">
+        <div class="word">Vette <div class="gear-btn" data-goto="terms" title="Terms & Disclaimer">${ICONS.gear}</div></div>
+        <div class="tag">Vette before you vote.</div>
+      </div>
+
+      <div class="section-label screen-fade">Your priorities</div>
+      <div class="chip-scroll screen-fade">
+        <div class="chip on">Economy &amp; Livelihood</div>
+        <div class="chip">Governance</div>
+        <div class="chip on">Anti-Corruption</div>
+        <div class="chip">Social Services</div>
+        <div class="chip">Agriculture</div>
+        <div class="chip">Environment</div>
+      </div>
+
+      <div class="section-label screen-fade">Presidential</div>
+      ${CANDIDATES.pres.map(c => candCard({...c, group:'pres', type:'radio', checked: state.pres === c.id})).join('')}
+
+      <div class="section-label screen-fade">Vice Presidential</div>
+      ${CANDIDATES.vp.map(c => candCard({...c, group:'vp', type:'radio', checked: state.vp === c.id})).join('')}
+
+      <div class="section-label screen-fade">Senatorial</div>
+      <div class="subsection-note screen-fade">Select up to 12 of ${CANDIDATES.sen.length} candidates — <span id="senCount">${state.sen.size}</span> selected.</div>
+      ${CANDIDATES.sen.map(c => candCard({...c, group:'sen', type:'checkbox', checked: state.sen.has(c.id)})).join('')}
+
+      <div class="btn-row screen-fade" style="padding-top:2px;">
+        <button class="primary-btn" data-goto="match">Vet These Candidates</button>
+      </div>
+    `,
+    footer: tabBar('dashboard')
+  },
+
+  match: {
+    label:'Match Score & Analysis',
+    dark:false,
+    body: () => {
+      const { overall, presCand, vpCand, senAvg, selectedSens } = computeMatchScore();
+      const circumference = 389.6;
+      const offset = (circumference * (1 - overall / 100)).toFixed(1);
+
+      const allFlags = list => list.basics.concat(list.more);
+      const presFlags = presCand ? allFlags(presCand) : [];
+      const vpFlags = vpCand ? allFlags(vpCand) : [];
+      const senFlags = selectedSens.flatMap(c => allFlags(c).map(s => ({...s, who: c.name})));
+
+      const matched = presFlags.find(s => s.flag === 'green');
+      const conflict = presFlags.find(s => s.flag === 'red')
+        || (vpFlags.find(s => s.flag === 'red') && {...vpFlags.find(s => s.flag === 'red'), who: vpCand.name})
+        || senFlags.find(s => s.flag === 'red');
+
+      const goodCallout = matched
+        ? `<div class="callout good screen-fade"><span class="dot"></span><div><b>Matched —</b> ${presCand.name} shows a strong signal on ${matched.label.toLowerCase()} (${matched.val}).</div></div>`
+        : '';
+      const badCallout = conflict
+        ? `<div class="callout bad screen-fade"><span class="dot"></span><div><b>Conflict —</b> ${conflict.who || presCand.name} shows a concern on ${conflict.label.toLowerCase()} (${conflict.val}).</div></div>`
+        : `<div class="callout good screen-fade"><span class="dot"></span><div><b>No conflicts —</b> None of your currently selected candidates show a red flag.</div></div>`;
+
+      const bestPres = CANDIDATES.pres.reduce((a, b) => (b.score > a.score ? b : a));
+      const suggestion = state.pres !== bestPres.id
+        ? `<div class="section-label screen-fade">Vette's suggestion</div>
+           <div class="cand-card screen-fade">
+             <p style="font-size:12.6px; line-height:1.55; color:var(--ink-soft);">Want a closer match? Swapping <b style="color:var(--navy-900);">${presCand.name}</b> for <b style="color:var(--navy-900);">${bestPres.name}</b> would raise your Presidential alignment from ${presCand.score}% to <b style="color:var(--navy-900);">${bestPres.score}%</b>.</p>
+             <button class="accept-suggestion" type="button" data-suggest-id="${bestPres.id}">
+               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v11M1.5 7h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+               Accept Suggestion
+             </button>
+           </div>`
+        : `<div class="section-label screen-fade">Vette's suggestion</div>
+           <div class="cand-card screen-fade">
+             <p style="font-size:12.6px; line-height:1.55; color:var(--ink-soft);">You're already matched with the highest-alignment Presidential candidate based on your priorities.</p>
+           </div>`;
+
+      return `
+      <div class="app-header screen-fade">
+        <div class="word">Match Score <div class="gear-btn" data-goto="terms" title="Terms & Disclaimer">${ICONS.gear}</div></div>
+        <div class="tag">Based on your selected candidates</div>
+      </div>
+
+      <div class="ring-wrap screen-fade">
+        <svg width="170" height="170" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="62" stroke="#EEF0F4" stroke-width="14" fill="none"/>
+          <circle cx="75" cy="75" r="62" stroke="#C9A15A" stroke-width="14" fill="none"
+            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round"
+            transform="rotate(-90 75 75)"/>
+          <text x="75" y="70" text-anchor="middle" font-family="Fraunces, serif" font-weight="600" font-size="34" fill="#0F172A">${overall}%</text>
+          <text x="75" y="92" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" letter-spacing="1" fill="#94A0B4">ALIGNMENT</text>
+        </svg>
+      </div>
+
+      <div class="subsection-note screen-fade" style="text-align:center; padding:0 22px 6px;">President ${presCand.score}% &nbsp;·&nbsp; VP ${vpCand.score}% &nbsp;·&nbsp; Senate avg ${senAvg}% (${selectedSens.length} selected)</div>
+
+      ${goodCallout}
+      ${badCallout}
+
+      ${suggestion}
+
+      <div class="btn-row screen-fade" style="padding-top:2px;">
+        <button class="ghost-btn" data-goto="dashboard">Adjust Priorities</button>
+        <button class="primary-btn gold-btn" data-goto="ballot" style="display:flex; align-items:center; justify-content:center; gap:7px;">${ICONS.download} Save to Ballot</button>
+      </div>
+    `;
+    },
+    footer: tabBar('match')
+  },
+
+  news: {
+    label:'News Feed',
+    dark:false,
+    body:`
+      <div class="app-header screen-fade">
+        <div class="word">Latest News <div class="gear-btn" data-goto="terms" title="Terms & Disclaimer">${ICONS.gear}</div></div>
+        <div class="tag">Curated from partner newsrooms</div>
+      </div>
+
+      <div class="news-card screen-fade">
+        <div class="news-thumb"></div>
+        <div>
+          <div class="news-source">Rappler · 2h ago</div>
+          <div class="news-headline">COA flags three agencies over unliquidated fund transfers</div>
+          <div class="news-snippet">The Commission on Audit's latest report highlights recurring gaps in fund liquidation across regional offices.</div>
+        </div>
+      </div>
+      <div class="news-card screen-fade">
+        <div class="news-thumb" style="background:linear-gradient(135deg,#C9A15A,#8a6f3a);"></div>
+        <div>
+          <div class="news-source">Inquirer · 5h ago</div>
+          <div class="news-headline">Senate bets face scrutiny over SALN filing gaps</div>
+          <div class="news-snippet">Several senatorial candidates missed the deadline for their Statement of Assets, Liabilities and Net Worth.</div>
+        </div>
+      </div>
+      <div class="news-card screen-fade">
+        <div class="news-thumb" style="background:linear-gradient(135deg,#1C8A4C,#0f5c31);"></div>
+        <div>
+          <div class="news-source">ABS-CBN · 1d ago</div>
+          <div class="news-headline">New agricultural subsidy bill clears committee</div>
+          <div class="news-snippet">The measure now heads to plenary after garnering support from farmer-sector representatives nationwide.</div>
+        </div>
+      </div>
+
+      <div style="height:6px;"></div>
+    `,
+    footer: tabBar('news')
+  },
+
+  ballot: {
+    label:'Sample Ballot Preview',
+    dark:false,
+    body: () => {
+      const { overall, presCand, vpCand, selectedSens } = computeMatchScore();
+      const slots = 12;
+      const senNames = CANDIDATES.sen.filter(c => state.sen.has(c.id)).map(c => c.name);
+      const rows = Array.from({length: slots}, (_, i) => {
+        const name = senNames[i];
+        return `<div class="ballot-row2"><div class="ballot-circle ${name ? 'filled':''}"></div>${name || '&nbsp;'}</div>`;
+      });
+      const col1 = rows.slice(0, slots/2).join('');
+      const col2 = rows.slice(slots/2).join('');
+
+      return `
+      <div class="app-header screen-fade">
+        <div class="word">Sample Ballot <div class="gear-btn" data-goto="terms" title="Terms & Disclaimer">${ICONS.gear}</div></div>
+        <div class="tag">Print or save your picks before election day</div>
+      </div>
+
+      <div class="ballot-frame screen-fade">
+        <div class="ballot-sheet">
+          <div class="ballot-watermark2">V</div>
+
+          <div class="ballot-top">
+            <div class="ballot-logo">V</div>
+            <div class="ballot-titles">
+              <div class="ballot-title2">VETTE SAMPLE BALLOT</div>
+              <div class="ballot-subtitle2">"Vette before you vote."</div>
+            </div>
+            <div class="ballot-meta2">
+              Date generated:<br/><b>JAN 01, 2026</b><br/>
+              Ballot ID: #A-0001<br/>
+              <b>Ballot score: ${overall}%</b>
+            </div>
+          </div>
+
+          <div class="ballot-bar">Presidential</div>
+          <div class="ballot-list">
+            <div class="ballot-row2"><div class="ballot-circle filled"></div>${presCand.name}</div>
+          </div>
+
+          <div class="ballot-bar">Vice Presidential</div>
+          <div class="ballot-list">
+            <div class="ballot-row2"><div class="ballot-circle filled"></div>${vpCand.name}</div>
+          </div>
+
+          <div class="ballot-bar">Senatorial</div>
+          <div class="ballot-list">
+            <div class="ballot-two-col">
+              <div class="col">${col1}</div>
+              <div class="col">${col2}</div>
+            </div>
+          </div>
+
+          <div class="ballot-bar empty">&nbsp;</div>
+          <div class="ballot-list empty-space">&nbsp;</div>
+          <div class="ballot-bar empty">&nbsp;</div>
+          <div class="ballot-list empty-space">&nbsp;</div>
+
+          <div class="ballot-disclaimer2"><b>DISCLAIMER:</b> This document is generated for educational and voter-awareness purposes only, based on user-selected criteria and verified public records. It is NOT an official ballot, does not constitute an endorsement by Vette, and cannot be used for actual voting in any polling precinct. Candidate track records, legislative data, and legal cases are sourced strictly from public archives and are subject to update without prejudice to pending judicial or commission resolutions.</div>
+        </div>
+      </div>
+
+      <div class="check-row screen-fade">
+        <div class="box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span>Include alignment score in the printed version</span>
+      </div>
+
+      <div class="btn-row screen-fade" style="padding-top:0;">
+        <button class="primary-btn" style="display:flex; align-items:center; justify-content:center; gap:7px;">${ICONS.download} Download PDF</button>
+      </div>
+    `;
+    },
+    footer: tabBar('ballot')
+  }
+};
+
+/* ---------- render / nav logic ---------- */
+const screenBody = document.getElementById('screenBody');
+
+function renderScreen(id){
+  const s = SCREENS[id];
+  if(!s) return;
+  const bodyHtml = typeof s.body === 'function' ? s.body() : s.body;
+  screenBody.innerHTML = bodyHtml;
+  screenBody.scrollTop = 0;
+  document.title = `Vette — ${s.label}`;
+  
+  // Render tabbar if screen has a footer (tabbar)
+  const tabbar = document.getElementById('tabbar');
+  if(tabbar){
+    tabbar.innerHTML = s.footer || '';
+    // wire up tab buttons
+    tabbar.querySelectorAll('.tab-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const targetId = btn.getAttribute('data-goto');
+        if(targetId) renderScreen(targetId);
+      });
+    });
+  }
+
+  // wire up in-app interactive elements
+  screenBody.querySelectorAll('[data-goto]').forEach(el=>{
+    el.addEventListener('click', ()=> renderScreen(el.dataset.goto));
+  });
+  screenBody.querySelectorAll('.chip').forEach(el=>{
+    el.addEventListener('click', ()=> el.classList.toggle('on'));
+  });
+  screenBody.querySelectorAll('.cand-radio').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const group = el.dataset.group;
+      const candId = el.dataset.id;
+      screenBody.querySelectorAll(`.cand-radio[data-group="${group}"]`).forEach(r=>r.classList.remove('checked'));
+      el.classList.add('checked');
+      state[group] = candId;
+    });
+  });
+  screenBody.querySelectorAll('.cand-check').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const candId = el.dataset.id;
+      if(state.sen.has(candId)){
+        state.sen.delete(candId);
+        el.classList.remove('on');
+      } else {
+        if(state.sen.size >= 12) return; // cap at 12 senators
+        state.sen.add(candId);
+        el.classList.add('on');
+      }
+      const counter = screenBody.querySelector('#senCount');
+      if(counter) counter.textContent = state.sen.size;
+    });
+  });
+  screenBody.querySelectorAll('.box').forEach(el=>{
+    el.addEventListener('click', ()=> el.classList.toggle('on'));
+  });
+  screenBody.querySelectorAll('.expand-toggle').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const card = el.closest('.cand-card');
+      card.classList.toggle('open');
+      el.querySelector('.expand-label').textContent = card.classList.contains('open') ? 'View less' : 'View more';
+    });
+  });
+  const acceptBtn = screenBody.querySelector('.accept-suggestion');
+  if(acceptBtn){
+    acceptBtn.addEventListener('click', ()=>{
+      state.pres = acceptBtn.dataset.suggestId;
+      renderScreen('match');
+    });
+  }
+}
+
+renderScreen('dashboard');
+</script>
+</body>
+</html>

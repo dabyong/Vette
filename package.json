@@ -1,0 +1,14 @@
+{
+    "version":  "1.0.0",
+    "license":  "MIT",
+    "keywords":  [
+
+                 ],
+    "scripts":  {
+                    "start":  "npx serve ."
+                },
+    "name":  "vette",
+    "description":  "Vette - Vette before you vote.",
+    "author":  "",
+    "main":  "index.html"
+}
